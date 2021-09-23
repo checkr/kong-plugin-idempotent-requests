@@ -24,7 +24,7 @@ for _, strategy in helpers.all_strategies() do
         name = PLUGIN_NAME,
         route = { id = route.id },
         config = {
-          idempotent_request_server_url = "http://idempotent-requests-server:8080",
+          idempotent_requests_server_url = "http://idempotent-requests-server:8080",
           timeout = 5000
         },
       }

@@ -47,7 +47,7 @@ local function send_request(conf, request)
   local client = http.new()
   client:set_timeout(conf.timeout)
 
-  local parsed_url = url.parse(conf.idempotent_request_server_url)
+  local parsed_url = url.parse(conf.idempotent_requests_server_url)
 
   local ok, err = client:connect_better {
     scheme = parsed_url.scheme,
