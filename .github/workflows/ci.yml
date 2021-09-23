@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+
+  unit_tests:
+    environment: continuous-integration
+    name: Unit Tests, Kong CE 2.5.x
+    runs-on: ubuntu-latest
+    env:
+      KONG_VERSION: 2.5.x
+    steps:
+      - name: Check out this Repo
+        uses: actions/checkout@v2
+      - name: Check out Kong Pongo
+        uses: actions/checkout@v2
+        with:
+          repository: Kong/kong-pongo
+          path: kong-pongo
+      - name: Run Kong Pongo
+        run: ./kong-pongo/pongo.sh up && ./kong-pongo/pongo.sh build
+      - name: Check out Checkr/idempotent-requests
+        uses: actions/checkout@v2
+        with:
+          repository: checkr/idempotent-requests
+          token: ${{ secrets.GH_PAT || github.token }}
+          path: idempotent-requests
+      - name: Run Idempotent Requests Server
+        run:  docker-compose -f ./idempotent-requests/docker-compose.yml -f ./idempotent-requests/docker-compose.server.yml -f docker-compose.network.yml up -d
+      - name: Wait
+        run: sleep 20
+      - name: Lint
+        run: ./kong-pongo/pongo.sh lint
+      - name: Tests
+        run: ./kong-pongo/pongo.sh run

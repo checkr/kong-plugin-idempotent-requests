@@ -1,0 +1,7 @@
+version: '3'
+
+# This allows us to deploy checkr/idempotent-requests services into the same network as kong/pongo
+networks:
+  idempotent-requests:
+    name: kong-pongo
+    external: true
