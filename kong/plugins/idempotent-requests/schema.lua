@@ -13,7 +13,7 @@ local schema = {
       -- The 'config' record is the custom part of the plugin schema
       type = "record",
       fields = {
-        { idempotent_request_server_url = typedefs.url({ required = true }) },
+        { idempotent_requests_server_url = typedefs.url({ required = true }) },
         { idempotency_key_header_name = typedefs.header_name({ default = "Idempotency-Key" }) },
         { timeout = {
           type = "number",
