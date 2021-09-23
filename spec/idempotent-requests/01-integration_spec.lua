@@ -58,7 +58,7 @@ for _, strategy in helpers.all_strategies() do
 
     describe("plugin", function()
       it("captures a response from the 1st request and returns it for the 2nd one", function()
-        --local idempotency_key_header = "Idempotency-Key"
+        local idempotency_key_header = "Idempotency-Key"
         local idempotency_key = uuid()
         local extra_header = "X-Extra"
         local extra_header_value = "Potato"
@@ -67,28 +67,28 @@ for _, strategy in helpers.all_strategies() do
         local r = client:get("/request", {
           headers = {
             host = upstream_host,
-            ["Idempotency-Key"] = idempotency_key
+            [idempotency_key_header] = idempotency_key
           }
         })
         -- validate that the request succeeded, response status 200
         assert.response(r).has.status(exp_status)
         -- now check the request (as echoed by mockbin) to have the header
-        local header_value = assert.request(r).has.header("Idempotency-Key")
+        local header_value = assert.request(r).has.header(idempotency_key_header)
         -- validate the value of that header
         assert.equal(idempotency_key, header_value)
 
         local r = client:get("/request", {
           headers = {
             host = upstream_host,
-            ["Idempotency-Key"] = idempotency_key,
-            extra_header = extra_header_value
+            [idempotency_key_header] = idempotency_key,
+            [extra_header] = extra_header_value
           }
         })
 
         -- validate that the 2nd response has the same status
         assert.response(r).has.status(exp_status)
         -- now check the request (as echoed by mockbin) to have the same idempotency key header
-        local header_value = assert.request(r).has.header("Idempotency-Key")
+        local header_value = assert.request(r).has.header(idempotency_key_header)
         -- validate the value of that header
         assert.equal(idempotency_key, header_value)
         -- now check the request (as echoed by mockbin) NOT to have the extra header
