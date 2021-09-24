@@ -36,6 +36,6 @@ jobs:
       - name: Lint
         run: ./kong-pongo/pongo.sh lint
       - name: Wait for Idempotent Requests Server readiness
-        run:  until curl "http://localhost:8080/-/ready"; do echo "Not ready yet"; sleep 2; done
+        run:  until curl -s "http://localhost:8080/-/ready"; do echo "Not ready yet"; sleep 2; done
       - name: Tests
         run: ./kong-pongo/pongo.sh run

@@ -2,6 +2,7 @@ local base64 = require "ngx.base64"
 local cjson = require("cjson.safe").new()
 local irs = require "kong.plugins.idempotent-requests.service"
 local kong = kong
+local utils = require "kong.tools.utils"
 
 local function read_json_body(body)
   if body then
@@ -15,6 +16,16 @@ local function headers_table(captured_headers)
     headers[header.key] = header.value
   end
   return headers
+end
+
+local function prepare_body_for_capture(body)
+  local compressed_raw_body = utils.deflate_gzip(body)
+  return base64.encode_base64url(compressed_raw_body)
+end
+
+local function extract_body_from_capture(encoded_deflated_body)
+  local deflated_body = base64.decode_base64url(encoded_deflated_body)
+  return utils.inflate_gzip(deflated_body)
 end
 
 local IdempotentRequestService = {
@@ -40,8 +51,8 @@ function IdempotentRequestService:access(plugin_conf)
       kong.log.info("Found a previous capture. Idempotency Key: ", idempotency_key_raw)
       local capture = read_json_body(allocation:read_body())
       local headers = headers_table(capture.response.response_headers)
-      kong.log.warn("headers are valid")
-      return kong.response.exit(capture.response.response_status, capture.response.response_body, headers)
+      local body = extract_body_from_capture(capture.response.response_body)
+      return kong.response.exit(capture.response.response_status, body, headers)
     elseif allocation.status == 202 then
       kong.log.info("Allocated a new capture. Idempotency Key: ", idempotency_key_raw)
       return
@@ -60,16 +71,23 @@ function IdempotentRequestService:response(plugin_conf)
 
   if idempotency_key_raw then
     local idempotency_key = base64.encode_base64url(idempotency_key_raw)
-    local allocation, err = irs.record_capture(plugin_conf, idempotency_key, kong.response.get_status(), kong.service.response.get_raw_body(), kong.response.get_headers())
+    local body, err = prepare_body_for_capture(kong.service.response.get_raw_body())
+
+    if not body then
+      kong.log.err("failed to prepare a response body for capture: ", err)
+      return
+    end
+
+    local allocation, err = irs.record_capture(plugin_conf, idempotency_key, kong.response.get_status(), body, kong.response.get_headers())
 
     if not allocation then
       kong.log.err("failed to record capture: ", err)
-      return kong.response.exit(500, { message = "An unexpected error occurred" })
+      return
     end
 
     if allocation.status ~= 200 then
       kong.log.err("failed to record capture. Status: ", allocation.status, " Response: ", allocation:read_body())
-      return kong.response.exit(500, { message = "An unexpected error occurred" })
+      return
     end
 
     kong.log.info("Recorded a new capture. Idempotency Key: ", idempotency_key_raw)
