@@ -1,10 +1,11 @@
+![CI workflow](https://github.com/checkr/kong-plugin-idempotent-requests/actions/workflows/ci.yml/badge.svg)
+
 # Kong plugin for Idempontent Requests
 
 This [Kong](https://github.com/kong/kong) plugin acts as a client for [`checkr/idempotent-requests`](https://github.com/checkr/idempotent-requests) server.
 
-## Project status
-
-![CI workflow](https://github.com/checkr/kong-plugin-idempotent-requests/actions/workflows/ci.yml/badge.svg)
+## Example data flow
+![Example Data Flow](./docs/example_data_flow.png)
 
 ## Configuration
 
