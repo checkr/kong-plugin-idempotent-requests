@@ -1,9 +1,11 @@
 local helpers = require "spec.helpers"
 local uuid = require "kong.tools.utils".uuid
 
+local UPSTREAM_HOST = "test1.com"
+local IDEMPOTENT_REQUESTS_SERVER_URL = "http://idempotent-requests-server:8080"
+
 local PLUGIN_NAME = "idempotent-requests"
 
-local upstream_host = "test1.com"
 
 for _, strategy in helpers.all_strategies() do
   describe(PLUGIN_NAME .. ": (access) [#" .. strategy .. "]", function()
@@ -16,7 +18,7 @@ for _, strategy in helpers.all_strategies() do
       -- Inject a test route. No need to create a service, there is a default
       -- service which will echo the request.
       local route = bp.routes:insert({
-        hosts = { upstream_host },
+        hosts = { UPSTREAM_HOST },
         response_buffering = true,
       })
       -- add the plugin to test to the route we created
@@ -24,7 +26,7 @@ for _, strategy in helpers.all_strategies() do
         name = PLUGIN_NAME,
         route = { id = route.id },
         config = {
-          idempotent_requests_server_url = "http://idempotent-requests-server:8080",
+          idempotent_requests_server_url = IDEMPOTENT_REQUESTS_SERVER_URL,
           timeout = 5000
         },
       }
@@ -66,7 +68,7 @@ for _, strategy in helpers.all_strategies() do
 
         local r = client:get("/request", {
           headers = {
-            host = upstream_host,
+            host = UPSTREAM_HOST,
             [idempotency_key_header] = idempotency_key
           }
         })
@@ -79,7 +81,7 @@ for _, strategy in helpers.all_strategies() do
 
         local r = client:get("/request", {
           headers = {
-            host = upstream_host,
+            host = UPSTREAM_HOST,
             [idempotency_key_header] = idempotency_key,
             [extra_header] = extra_header_value
           }
