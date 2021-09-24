@@ -8,9 +8,9 @@ on:
 
 jobs:
 
-  unit_tests:
+  tests:
     environment: continuous-integration
-    name: Unit Tests, Kong CE 2.4.x
+    name: Tests, Kong CE 2.4.x
     runs-on: ubuntu-latest
     env:
       KONG_VERSION: 2.4.x
