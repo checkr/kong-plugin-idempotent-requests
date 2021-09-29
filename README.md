@@ -3,6 +3,10 @@
 # Kong plugin for Idempontent Requests
 
 This [Kong](https://github.com/kong/kong) plugin acts as a client for [`checkr/idempotent-requests`](https://github.com/checkr/idempotent-requests) server.
+It follows behaviors described in [IETF draft for standardized `Idempotency-Key` header](https://datatracker.ietf.org/doc/html/draft-ietf-httpapi-idempotency-key-header-00).
+
+⚠️ Important note: this plugin requires requests and responses to be buffered within Kong. As of the moment of publishing this document,
+Kong does not support it in case of `HTTP/2` and `gRPC` (due to the underlying Nginx limitation).
 
 ## Example data flow
 ![Example Data Flow](./docs/example_data_flow.png)
