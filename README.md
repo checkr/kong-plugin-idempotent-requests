@@ -47,8 +47,8 @@ luarocks install busted
 
 ## Running Integration Tests Locally
 
-1. Check out `https://github.com/checkr/idempotent-requests` into `../idempotent-requests`
-2. Check out `https://github.com/Kong/kong-pongo` into `../../kong/kong-pongo`
+1. Check out [`https://github.com/checkr/idempotent-requests`](https://github.com/checkr/idempotent-requests) into `../idempotent-requests`
+2. Check out [`https://github.com/Kong/kong-pongo`](https://github.com/Kong/kong-pongo) into `../../kong/kong-pongo`
 
 ```shell
 # Run Kong Pongo
